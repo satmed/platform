@@ -33,7 +33,13 @@ resource "github_repository_ruleset" "platform_protect_main" {
       allowed_merge_methods             = ["squash"]
     }
 
-    # O required_status_checks entra quando existir CI:
-    # exigir um check que nenhum workflow produz bloqueia todo PR para sempre.
+    # Agora existe CI: o check do servidor é obrigatório para o merge.
+    required_status_checks {
+      strict_required_status_checks_policy = true # a branch tem que estar atualizada com a main
+      required_check {
+        context        = "static-checks" # nome do job no platform-ci.yml
+        integration_id = 15368           # só o GitHub Actions pode marcar este check
+      }
+    }
   }
 }
