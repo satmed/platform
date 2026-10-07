@@ -1,0 +1,11 @@
+# Aceites de risco do trivy. Cada item precisa de justificativa e validade:
+# quando vence, o achado volta a bloquear e alguém tem que reavaliar.
+misconfigurations:
+  - id: GIT-0001 # Repository is public
+    paths:
+      - "github/repos.tf"
+    statement: >-
+      satmed/platform é público de propósito: no plano Free do GitHub, ruleset
+      só vale em repo público. Não contém segredo, state nem tfvars (gitleaks no
+      pre-commit e no CI). Reavaliar se a org migrar para o plano Team.
+    expired_at: 2027-04-07

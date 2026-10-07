@@ -1,0 +1,35 @@
+# Feedback rápido na máquina do dev. NÃO é o controle: o CI roda os mesmos hooks
+# como check obrigatório, porque aqui qualquer um pode pular (--no-verify).
+repos:
+  # Hooks de terceiros: fixados por SHA (é código alheio rodando na sua máquina).
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c # v6.0.0
+    hooks:
+      - id: check-yaml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-merge-conflict
+      - id: detect-private-key
+
+  # Ferramentas já instaladas na máquina (mesmo padrão do prontuario).
+  - repo: local
+    hooks:
+      - id: gitleaks
+        name: gitleaks (segredos no que está staged)
+        entry: gitleaks git --pre-commit --staged --redact --no-banner -v
+        language: system
+        pass_filenames: false
+
+      - id: terraform-fmt
+        name: terraform fmt (formatação)
+        entry: terraform fmt -check -recursive terraform/
+        language: system
+        pass_filenames: false
+        files: \.tf$
+
+      - id: trivy-config
+        name: trivy config (IaC mal configurada)
+        entry: trivy config --severity HIGH,CRITICAL --exit-code 1 --quiet --ignorefile .trivyignore.yaml terraform/
+        language: system
+        pass_filenames: false
+        files: \.tf$
