@@ -1,0 +1,15 @@
+# Binários e cache do provider: não é código
+.terraform/
+
+# State: guarda os valores reais (e-mail de cobrança, IDs)
+*.tfstate
+*.tfstate.*
+
+# Variáveis com valor pessoal ou sensível
+*.tfvars
+
+# Rascunho do import: traz o billing_email
+generated.tf
+
+# Plano salvo: carrega valores
+*.tfplan
