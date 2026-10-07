@@ -34,3 +34,9 @@ resource "github_repository" "platform" {
   }
 }
 
+# Alertas do Dependabot. O atributo vulnerability_alerts dentro do repo está
+# deprecated no provider 6.x: o certo é este recurso separado.
+resource "github_repository_vulnerability_alerts" "platform" {
+  repository = github_repository.platform.name
+  enabled    = true
+}
