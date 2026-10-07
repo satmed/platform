@@ -29,7 +29,7 @@ repos:
 
       - id: trivy-config
         name: trivy config (IaC mal configurada)
-        entry: trivy config --severity HIGH,CRITICAL --exit-code 1 --quiet --ignorefile .trivyignore.yaml terraform/
+        entry: trivy config --severity HIGH,CRITICAL --exit-code 1 --quiet --ignorefile .trivyignore.yaml --skip-files "**/*.tfplan" terraform/
         language: system
         pass_filenames: false
         files: \.tf$
