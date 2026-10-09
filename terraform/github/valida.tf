@@ -45,3 +45,56 @@ resource "github_team_repository" "devsecops_valida_rs" {
   repository = github_repository.valida_rs.name
   permission = "admin"
 }
+
+# A main do Valida: só por PR, assinada, e com os 4 portões da esteira verdes.
+resource "github_repository_ruleset" "valida_rs_protect_main" {
+  name        = "protect-main"
+  repository  = github_repository.valida_rs.name
+  target      = "branch"
+  enforcement = "active"
+  # Sem bypass_actors: ninguém pula, nem o owner.
+
+  conditions {
+    ref_name {
+      include = ["~DEFAULT_BRANCH"]
+      exclude = []
+    }
+  }
+
+  rules {
+    deletion                = true
+    non_fast_forward        = true
+    required_signatures     = true
+    required_linear_history = true
+
+    pull_request {
+      required_approving_review_count   = 0 # um humano só; com time: 1+ e code owner
+      require_code_owner_review         = false
+      require_last_push_approval        = false
+      dismiss_stale_reviews_on_push     = true
+      required_review_thread_resolution = true
+      allowed_merge_methods             = ["squash"]
+    }
+
+    # Os nomes exatos que a esteira publica (conferidos no 1º run do PR #1).
+    required_status_checks {
+      strict_required_status_checks_policy = true
+      required_check {
+        context        = "rust-ci / secrets"
+        integration_id = 15368
+      }
+      required_check {
+        context        = "rust-ci / lint"
+        integration_id = 15368
+      }
+      required_check {
+        context        = "rust-ci / test"
+        integration_id = 15368
+      }
+      required_check {
+        context        = "rust-ci / supply-chain"
+        integration_id = 15368
+      }
+    }
+  }
+}
