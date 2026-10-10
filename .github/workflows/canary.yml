@@ -1,0 +1,35 @@
+# Canário: roda AS MESMAS esteiras dos produtos no ubuntu-latest, toda segunda.
+# Os produtos ficam fixados (ubuntu-24.04); quando o apelido latest mudar, o canário
+# conta antes se o runner novo quebra a esteira. Se falhar, o GitHub manda e-mail
+# sozinho: o canário continua sem nenhum segredo.
+name: canary
+
+on:
+  schedule:
+    - cron: "0 12 * * 1" # segunda, 12:00 UTC (09:00 em Brasília)
+  workflow_dispatch: # rodar na mão quando quiser
+  pull_request: # mudança na esteira é testada no próprio PR
+    paths:
+      - ".github/workflows/canary.yml"
+      - ".github/workflows/rust-ci.yml"
+      - ".github/workflows/platform-ci.yml"
+      - "canary/**"
+
+permissions: {}
+
+jobs:
+  platform:
+    uses: ./.github/workflows/platform-ci.yml
+    permissions:
+      contents: read
+    with:
+      # Em PR testa a mudança no runner fixado; agendado/manual testa o latest.
+      runner: ${{ github.event_name == 'pull_request' && 'ubuntu-24.04' || 'ubuntu-latest' }}
+
+  rust:
+    uses: ./.github/workflows/rust-ci.yml
+    permissions:
+      contents: read
+    with:
+      runner: ${{ github.event_name == 'pull_request' && 'ubuntu-24.04' || 'ubuntu-latest' }}
+      workdir: canary/rust

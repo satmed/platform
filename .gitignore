@@ -13,3 +13,4 @@ generated.tf
 
 # Plano salvo: carrega valores
 *.tfplan
+target/
