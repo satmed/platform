@@ -23,7 +23,7 @@ module "pipectl" {
   teams = {
     devsecops = { id = github_team.devsecops.id, permission = "admin" }
   }
-  required_checks = [] # passo seguinte: local.rust_ci_checks
+  required_checks = local.rust_ci_checks
 }
 
 # Refatoração: os recursos já existem; só mudaram de endereço. Sem estes blocos,
