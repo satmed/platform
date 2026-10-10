@@ -1,0 +1,9 @@
+# Crate mínimo do canário: só existe para a esteira rust-ci ter o que compilar
+# quando roda no ubuntu-latest. Não é produto, não é publicado.
+[package]
+name = "canario"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]

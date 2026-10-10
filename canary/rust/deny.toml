@@ -1,0 +1,14 @@
+# Política do canário: sem dependências, então nada a permitir nem aceitar.
+[advisories]
+yanked = "deny"
+ignore = []
+
+[licenses]
+allow = ["MIT"]
+
+[licenses.private]
+ignore = true
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"

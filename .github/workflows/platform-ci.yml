@@ -6,13 +6,20 @@ on:
   pull_request:
   push:
     branches: [main]
+  workflow_call: # o canário chama este mesmo workflow em outro runner
+    inputs:
+      runner:
+        type: string
+        default: ubuntu-24.04
 
 permissions: {} # padrão = nada; o job pede só o que precisa
 
 jobs:
   static-checks:
     name: static-checks
-    runs-on: ubuntu-latest
+        # Fixado: ubuntu-latest é um apelido que muda sozinho. Atualizar = PR.
+    # Em PR/push o inputs.runner vem vazio, por isso o padrão depois do ||.
+    runs-on: ${{ inputs.runner || 'ubuntu-24.04' }}
     permissions:
       contents: read
     steps:
