@@ -14,3 +14,7 @@ generated.tf
 # Plano salvo: carrega valores
 *.tfplan
 target/
+
+# Endereço do bucket do state (gerado por scripts/bootstrap-state.sh)
+backend.local.hcl
+*.tf.off
