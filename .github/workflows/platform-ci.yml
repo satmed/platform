@@ -4,6 +4,7 @@ name: platform-ci
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, edited] # edited: título corrigido roda de novo
   push:
     branches: [main]
   workflow_call: # o canário chama este mesmo workflow em outro runner
@@ -17,7 +18,7 @@ permissions: {} # padrão = nada; o job pede só o que precisa
 jobs:
   static-checks:
     name: static-checks
-        # Fixado: ubuntu-latest é um apelido que muda sozinho. Atualizar = PR.
+    # Fixado: ubuntu-latest é um apelido que muda sozinho. Atualizar = PR.
     # Em PR/push o inputs.runner vem vazio, por isso o padrão depois do ||.
     runs-on: ${{ inputs.runner || 'ubuntu-24.04' }}
     permissions:
@@ -50,6 +51,26 @@ jobs:
           curl -sSfL "$base/gitleaks_${GITLEAKS_VERSION}_checksums.txt" | grep linux_x64.tar.gz | sha256sum -c -
           tar xzf "gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" gitleaks
           sudo mv gitleaks /usr/local/bin/
+
+      - name: Install actionlint (versão fixa + checksum)
+        env:
+          ACTIONLINT_VERSION: 1.7.12
+          ACTIONLINT_SHA256: 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8
+        run: |
+          f=actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz
+          curl -sSfLO "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/$f"
+          echo "$ACTIONLINT_SHA256  $f" | sha256sum -c -
+          tar xzf "$f" actionlint
+          sudo mv actionlint /usr/local/bin/
+
+      - name: Título do PR (Conventional Commits; no squash ele vira o commit da main)
+        if: github.event_name == 'pull_request'
+        env:
+          TITULO: ${{ github.event.pull_request.title }} # via env: título é entrada do usuário
+        run: |
+          re='^(feat|fix|ci|refactor|chore|docs|test|build|perf|revert)(\([a-z0-9/-]+\))?!?: [^ ].*[^.]$'
+          [[ "$TITULO" =~ $re ]] || { echo "::error::título fora do padrão: '$TITULO' (ex.: feat(api): add login)"; exit 1; }
+          echo "ok  $TITULO"
 
       - name: Install pre-commit
         run: pip install pre-commit==4.6.2

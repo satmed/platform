@@ -43,3 +43,25 @@ resource "github_repository_ruleset" "platform_protect_main" {
     }
   }
 }
+
+# Tags de versão da esteira (v1.2.0...) são imutáveis: os produtos fixam o SHA e o
+# Dependabot lê a tag para propor o bump. Tag movida ou apagada = bump apontando para o nada.
+resource "github_repository_ruleset" "platform_protect_tags" {
+  name        = "protect-version-tags"
+  repository  = github_repository.platform.name
+  target      = "tag"
+  enforcement = "active"
+
+  conditions {
+    ref_name {
+      include = ["refs/tags/v*"]
+      exclude = []
+    }
+  }
+
+  rules {
+    deletion         = true # ninguém apaga uma versão publicada
+    update           = true # ninguém move a tag para outro commit
+    non_fast_forward = true
+  }
+}

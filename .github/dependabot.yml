@@ -1,0 +1,26 @@
+# Atualização de dependências: o Dependabot abre o PR, a esteira testa, o merge é humano.
+# Actions fixadas por SHA com "# vX.Y.Z" ao lado: o Dependabot lê o comentário e troca os dois.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Sao_Paulo
+    commit-message:
+      prefix: ci # título do PR passa no check de Conventional Commits
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: terraform
+    directory: /terraform/github
+    schedule:
+      interval: weekly
+      day: monday
+      time: "09:00"
+      timezone: America/Sao_Paulo
+    commit-message:
+      prefix: build

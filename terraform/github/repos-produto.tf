@@ -25,38 +25,3 @@ module "pipectl" {
   }
   required_checks = local.rust_ci_checks
 }
-
-# Refatoração: os recursos já existem; só mudaram de endereço. Sem estes blocos,
-# o Terraform planejaria APAGAR e recriar os repos.
-moved {
-  from = github_repository.valida_rs
-  to   = module.valida_rs.github_repository.this
-}
-moved {
-  from = github_repository_vulnerability_alerts.valida_rs
-  to   = module.valida_rs.github_repository_vulnerability_alerts.this
-}
-moved {
-  from = github_team_repository.dev_valida_rs
-  to   = module.valida_rs.github_team_repository.this["dev"]
-}
-moved {
-  from = github_team_repository.devsecops_valida_rs
-  to   = module.valida_rs.github_team_repository.this["devsecops"]
-}
-moved {
-  from = github_repository_ruleset.valida_rs_protect_main
-  to   = module.valida_rs.github_repository_ruleset.protect_main[0]
-}
-moved {
-  from = github_repository.pipectl
-  to   = module.pipectl.github_repository.this
-}
-moved {
-  from = github_repository_vulnerability_alerts.pipectl
-  to   = module.pipectl.github_repository_vulnerability_alerts.this
-}
-moved {
-  from = github_team_repository.devsecops_pipectl
-  to   = module.pipectl.github_team_repository.this["devsecops"]
-}

@@ -20,6 +20,13 @@ repos:
         language: system
         pass_filenames: false
 
+      - id: actionlint
+        name: actionlint (workflows; erro que o check-yaml não pega)
+        entry: actionlint
+        language: system
+        pass_filenames: false
+        files: ^\.github/workflows/
+
       - id: terraform-fmt
         name: terraform fmt (formatação)
         entry: terraform fmt -check -recursive terraform/

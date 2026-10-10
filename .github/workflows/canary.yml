@@ -13,6 +13,7 @@ on:
       - ".github/workflows/canary.yml"
       - ".github/workflows/rust-ci.yml"
       - ".github/workflows/platform-ci.yml"
+      - ".pre-commit-config.yaml"
       - "canary/**"
 
 permissions: {}
