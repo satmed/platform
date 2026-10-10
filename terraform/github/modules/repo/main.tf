@@ -59,6 +59,15 @@ resource "github_repository_ruleset" "protect_main" {
     required_signatures     = true
     required_linear_history = true
 
+    # Mensagem do commit que entra na main (no squash, o título do PR). O check do CI é só aviso:
+    # ele lê o título do evento, e um evento atrasado com título antigo já sobrescreveu um vermelho.
+    # Aqui o GitHub confere o commit em si, na hora do merge.
+    commit_message_pattern {
+      name     = "conventional-commits"
+      operator = "regex"
+      pattern  = "^(feat|fix|ci|refactor|chore|docs|test|build|perf|revert)(\\([a-z0-9/-]+\\))?!?: \\S"
+    }
+
     pull_request {
       required_approving_review_count   = 0 # um humano só; com time: 1+ e code owner
       require_code_owner_review         = false
