@@ -24,6 +24,8 @@ env:
   RUST_VERSION: ${{ inputs.rust-version }}
   GITLEAKS_VERSION: 8.30.1
   CARGO_DENY_VERSION: 0.20.2
+  ACTIONLINT_VERSION: 1.7.12
+  ACTIONLINT_SHA256: 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8
 
 jobs:
   secrets:
@@ -60,6 +62,23 @@ jobs:
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
         with:
           workspaces: ${{ inputs.workdir }}
+      - name: Título do PR (Conventional Commits; no squash ele vira o commit da main)
+        if: github.event_name == 'pull_request'
+        env:
+          TITULO: ${{ github.event.pull_request.title }} # via env: título é entrada do usuário
+        shell: bash
+        run: |
+          re='^(feat|fix|ci|refactor|chore|docs|test|build|perf|revert)(\([a-z0-9/-]+\))?!?: [^ ].*[^.]$'
+          [[ "$TITULO" =~ $re ]] || { echo "::error::título fora do padrão: '$TITULO' (ex.: feat(api): add login)"; exit 1; }
+          echo "ok  $TITULO"
+      - name: Install actionlint (versão fixa + checksum)
+        run: |
+          f=actionlint_${ACTIONLINT_VERSION}_linux_amd64.tar.gz
+          curl -sSfLO "https://github.com/rhysd/actionlint/releases/download/v${ACTIONLINT_VERSION}/$f"
+          echo "$ACTIONLINT_SHA256  $f" | sha256sum -c -
+          tar xzf "$f" actionlint
+      - name: Workflows (actionlint + shellcheck)
+        run: ./actionlint -color
       - name: Formatação
         working-directory: ${{ inputs.workdir }}
         run: cargo fmt --check

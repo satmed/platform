@@ -20,6 +20,15 @@ resource "github_repository_ruleset" "platform_protect_main" {
     required_signatures     = true # todo commit na main precisa ser assinado
     required_linear_history = true # histórico em linha reta, sem merge commits
 
+    # Mensagem do commit que entra na main (no squash, o título do PR). O check do CI é só aviso:
+    # ele lê o título do evento, e um evento atrasado com título antigo já sobrescreveu um vermelho.
+    # Aqui o GitHub confere o commit em si, na hora do merge.
+    commit_message_pattern {
+      name     = "conventional-commits"
+      operator = "regex"
+      pattern  = "^(feat|fix|ci|refactor|chore|docs|test|build|perf|revert)(\\([a-z0-9/-]+\\))?!?: \\S"
+    }
+
     pull_request {
       # Org com um humano só: ninguém pode aprovar o próprio PR.
       # Com 1 aprovação obrigatória você nunca conseguiria fazer merge.
@@ -41,5 +50,27 @@ resource "github_repository_ruleset" "platform_protect_main" {
         integration_id = 15368           # só o GitHub Actions pode marcar este check
       }
     }
+  }
+}
+
+# Tags de versão da esteira (v1.2.0...) são imutáveis: os produtos fixam o SHA e o
+# Dependabot lê a tag para propor o bump. Tag movida ou apagada = bump apontando para o nada.
+resource "github_repository_ruleset" "platform_protect_tags" {
+  name        = "protect-version-tags"
+  repository  = github_repository.platform.name
+  target      = "tag"
+  enforcement = "active"
+
+  conditions {
+    ref_name {
+      include = ["refs/tags/v*"]
+      exclude = []
+    }
+  }
+
+  rules {
+    deletion         = true # ninguém apaga uma versão publicada
+    update           = true # ninguém move a tag para outro commit
+    non_fast_forward = true
   }
 }
