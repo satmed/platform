@@ -9,3 +9,13 @@ misconfigurations:
       só vale em repo público. Não contém segredo, state nem tfvars (gitleaks no
       pre-commit e no CI). Reavaliar se a org migrar para o plano Team.
     expired_at: 2027-04-07
+  - id: AWS-0132 # S3 sem chave KMS do cliente (CMK)
+    paths:
+      - "aws-bootstrap/main.tf"
+    statement: >-
+      Bucket do state do Terraform com SSE-S3 (AES256), versionamento, bloqueio
+      público, só TLS e acesso por IAM restrito a 2 roles OIDC. Uma CMK no KMS
+      daria rotação/auditoria da chave, mas custa US$1/mês e o controle que importa
+      aqui é quem lê o objeto (IAM), não quem guarda a chave. Reavaliar se o bucket
+      passar a guardar dado de paciente ou se a AWS virar a nuvem principal.
+    expired_at: 2027-04-07

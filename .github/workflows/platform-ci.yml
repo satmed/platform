@@ -83,5 +83,7 @@ jobs:
 
       - name: Terraform validate (sem backend, sem credencial)
         run: |
-          terraform -chdir=terraform/github init -backend=false
-          terraform -chdir=terraform/github validate
+          for d in terraform/github terraform/aws-bootstrap; do
+            terraform -chdir="$d" init -backend=false
+            terraform -chdir="$d" validate
+          done
